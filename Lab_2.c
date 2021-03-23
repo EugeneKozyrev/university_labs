@@ -1,16 +1,19 @@
 #include <stdio.h>
 #include <locale.h>
 #include <unistd.h>
+#include <string.h>
 
 #define SIZE 11
 #define P_CHAR 94
-#define END 404
+#define END "end"
 
 int arrayFirst[SIZE] = {};
 int arraySecond[SIZE] = {};
 
 void printHello();
 unsigned int sleep (unsigned int sec);
+
+//int* polynomDiv(int* arrayF, int*  arrayS);
 
 int* arrayAdd(int* arrayF, int* arrayS);
 int* arraySub(int* arrayF, int* arrayS);
@@ -78,29 +81,120 @@ int* arrayMul(int* arrayF, int* arrayS){
     }
     printf("\n");
 }
+/*
+int* polynomDiv(int* arrayF, int*  arrayS){
+    printHello();
+}
 
+int* arrayDiv(int* arrayF, int* arrayS){
+    int arrayRes[SIZE] = {};
+    int flagF = 0;
+    int flagS = 0;
+    for(int i = 0; i < SIZE; ++i){
+        if(arrayF[i] != 0)
+            flagF++;
+    }
+    for(int i = 0; i < SIZE; ++i){
+        if(arrayS[i] != 0)
+            flagS++;
+    }
+    if(flagS == 0){
+        perror("ERROR: DIVISION BY ZERO");
+        return 0;
+    } else if (flagF == 0 && flagS == 0){
+        printf("%d", 0);
+    } else if (flagS > flagF){
+        perror("ERROR: THE POWER OF THE DIVISOR MUST BE LESS THAN OR EQUAL TO THE POWER OF THE DIVIDEND!");
+        return 0;
+    } else {
+        polynomDiv(arrayF, arrayS);
+    }
+
+
+}
+*/
 /*
  *
  */
 void inputArrays(){
     for(int i = 0; i < SIZE; ++i){
-        printf("Type coefficient for extent %d\nFor end of input, type %d\n ", i, END);
-        int inputNumber;
-        scanf("%d", &inputNumber);
-        if(inputNumber == END)
+        char inputNumber[20];
+        printf("Type coefficient for extent %d\nFor end of input, type '%s'\n ", i, END);
+        scanf("%s", inputNumber);
+        if(inputNumber[0] == 'e' && inputNumber[1] == 'n' && inputNumber[2] == 'd')
             break;
-        else
-            arrayFirst[i] =  inputNumber;
+        else{
+            int resInputNumber = 0;
+            int multiplier = 1;
+            for(int i = 0; i < 1; ++i, multiplier *= 10){
+                if((int)inputNumber[i] == 48){
+                    resInputNumber += 0 * multiplier;
+                } else if ((int)inputNumber[i] == 49){
+                    resInputNumber += 1 * multiplier;
+                } else if ((int)inputNumber[i] == 50){
+                    resInputNumber += 2 * multiplier;
+                } else if ((int)inputNumber[i] == 51){
+                    resInputNumber += 3 * multiplier;
+                } else if ((int)inputNumber[i] == 52) {
+                    resInputNumber += 4 * multiplier;
+                } else if ((int)inputNumber[i] == 53){
+                    resInputNumber += 5 * multiplier;
+                } else if ((int)inputNumber[i] == 54){
+                    resInputNumber += 6 * multiplier;
+                } else if ((int)inputNumber[i] == 55){
+                    resInputNumber += 7 * multiplier;
+                } else if ((int)inputNumber[i] == 56) {
+                    resInputNumber += 8 * multiplier;
+                } else if ((int)inputNumber[i] == 57) {
+                    resInputNumber += 9 * multiplier;
+                } else {
+                    perror("ERROR");
+                    //i--;
+                    continue;
+                }
+            }
+            arrayFirst[i] =  resInputNumber;
+        }
     }
 
     for(int i = 0; i < SIZE; ++i){
-        printf("Type coefficient for extent %d\nFor end of input, type %d\n ", i, END);
-        int inputNumber;
-        scanf("%d", &inputNumber);
-        if(inputNumber == END)
+        char inputNumber[20];
+        printf("Type coefficient for extent %d\nFor end of input, type '%s'\n ", i, END);
+        scanf("%s", inputNumber);
+        if(inputNumber[0] == 'e' && inputNumber[1] == 'n' && inputNumber[2] == 'd')
             break;
-        else
-            arraySecond[i] =  inputNumber;
+        else{
+            int resInputNumber = 0;
+            int multiplier = 1;
+            for(int i = 0; i < 1; ++i, multiplier *= 10){
+                if((int)inputNumber[i] == 48){
+                    resInputNumber += 0 * multiplier;
+                } else if ((int)inputNumber[i] == 49){
+                    resInputNumber += 1 * multiplier;
+                } else if ((int)inputNumber[i] == 50){
+                    resInputNumber += 2 * multiplier;
+                } else if ((int)inputNumber[i] == 51){
+                    resInputNumber += 3 * multiplier;
+                } else if ((int)inputNumber[i] == 52) {
+                    resInputNumber += 4 * multiplier;
+                } else if ((int)inputNumber[i] == 53){
+                    resInputNumber += 5 * multiplier;
+                } else if ((int)inputNumber[i] == 54){
+                    resInputNumber += 6 * multiplier;
+                } else if ((int)inputNumber[i] == 55){
+                    resInputNumber += 7 * multiplier;
+                } else if ((int)inputNumber[i] == 56) {
+                    resInputNumber += 8 * multiplier;
+                } else if ((int)inputNumber[i] == 57) {
+                    resInputNumber += 9 * multiplier;
+                } else {
+                    perror("ERROR");
+                    //i--;
+                    continue;
+                }
+            }
+            arraySecond[i] =  resInputNumber;
+        }
     }
 }
 
@@ -125,5 +219,5 @@ void printArraySecond(){
 }
 
 void printHello(){
-    printf("%s","𝕎𝕖𝕝𝕔𝕠𝕞𝕖 𝕥𝕠 𝕡𝕠𝕝𝕪𝕟𝕠𝕞 𝕒𝕕𝕕𝕚𝕟𝕘 𝕒𝕟𝕕 𝕠𝕥𝕙𝕖𝕣 𝕤𝕥𝕦𝕗𝕗 𝕡𝕣𝕠𝕘𝕣𝕒𝕞");
+    printf("%s\n","Hello");
 }
