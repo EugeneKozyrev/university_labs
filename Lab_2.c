@@ -1,69 +1,117 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <locale.h>
 
 #define SIZE 11
-#define ZERO_CHAR 48
 #define P_CHAR 94
-#define END "end"
+#define END 404
 
 int arrayFirst[SIZE] = {};
 int arraySecond[SIZE] = {};
 
-
 int* arrayAdd(int* arrayF, int* arrayS);
 int* arraySub(int* arrayF, int* arrayS);
 int* arrayMul(int* arrayF, int* arrayS);
+float* arrayDiv(int* arrayF, int extent, int coefficient);
 
 void inputArrays();
-void printArrayFirst();
-void printArraySecond();
-
+float* initArrayFloat();
+int* initArrayInt();
+void printArrayInt(int *array);
+void printArrayFloat(float *array);
 
 int main() {
     setlocale(LC_ALL, "Russian");
     inputArrays();
-    printArrayFirst();
-    printArraySecond();
     arrayAdd(arrayFirst, arraySecond);
     arraySub(arrayFirst, arraySecond);
     arrayMul(arrayFirst, arraySecond);
+    int coefficient, extent;
+    printf("Type coefficient of monom for division: \n");
+    scanf("%d", &coefficient);
+    printf("Type extent of monom for division: \n");
+    scanf("%d", &extent);
+    float *res = arrayDiv(arrayFirst, extent, coefficient);
+    printArrayFloat(res);
     return 0;
 }
 
-/*
- *
- */
+
+int* initArrayInt(){
+    int* res = (int*) malloc(sizeof(int) * SIZE);
+    for (int i = 0; i < SIZE; i++){
+        res[i] = 0;
+    }
+    return res;
+}
+
+float* initArrayFloat(){
+    float* res = (float*) malloc(sizeof(float) * SIZE);
+    for (int i = 0; i < SIZE; i++){
+        res[i] = 0;
+    }
+    return res;
+}
+
+void printArrayInt(int *array){
+    int flag = 0;
+    for (int i = SIZE - 1; i >= 0; --i) {
+        if(array[i] != 0)
+            printf("%s%dx%c%d ", (array[i] > 0 && flag++ != 0) ? "+" : "", array[i], P_CHAR, i);
+    }
+}
+
+void printArrayFloat(float *array){
+    int flag = 0;
+    printf("The result of polynom division:  \n");
+    for (int i = SIZE - 1; i >= 0; --i) {
+        if((array[i] > 0.000001) || (array[i] < -0.000001))
+            printf("%s%.2fx%c%d ", (array[i] > 0 && flag++ != 0) ? "+" : "", array[i], P_CHAR, i);
+    }
+}
+
+void inputArrays(){
+    for(int i = 0; i < SIZE; ++i){
+        printf("Type coefficient for extent %d\nFor end of input, type %d\n ", i, END);
+        int inputNumber;
+        scanf("%d", &inputNumber);
+        if(inputNumber == END)
+            break;
+        else
+            arrayFirst[i] =  inputNumber;
+    }
+
+    for(int i = 0; i < SIZE; ++i){
+        printf("Type coefficient for extent %d\nFor end of input, type %d\n ", i, END);
+        int inputNumber;
+        scanf("%d", &inputNumber);
+        if(inputNumber == END)
+            break;
+        else
+            arraySecond[i] =  inputNumber;
+    }
+}
 
 int* arrayAdd(int* arrayF, int* arrayS){
     int arrayRes[SIZE] = {};
     for (int i = 0; i < SIZE; ++i) {
         arrayRes[i] = arrayF[i] + arrayS[i];
     }
-    for (int i = SIZE - 1; i >= 0; --i) {
-        if(arrayRes[i] != 0)
-            printf("%dx%c%d ", arrayRes[i], P_CHAR, i);
-    }
+    printf("The result of polynom addition:  \n");
+    printArrayInt(arrayRes);
     printf("\n");
 }
 
-/*
- *
- */
 int* arraySub(int* arrayF, int* arrayS){
     int arrayRes[SIZE] = {};
     for (int i = 0; i < SIZE; ++i) {
         arrayRes[i] = arrayF[i] - arrayS[i];
     }
-    for (int i = SIZE - 1; i >= 0; --i) {
-        if(arrayRes[i] != 0)
-            printf("%dx%c%d ", arrayRes[i], P_CHAR, i);
-    }
+    printf("The result of polynom subtraction:  \n");
+    printArrayInt(arrayRes);
     printf("\n");
 }
 
-/*
- *
- */
 int* arrayMul(int* arrayF, int* arrayS){
     int arrayRes[SIZE * 2] = {};
     for (int i = 0; i < SIZE; ++i) {
@@ -71,84 +119,20 @@ int* arrayMul(int* arrayF, int* arrayS){
             arrayRes[i + j] += arrayF[i] * arrayS[j];
         }
     }
-    for (int i = (SIZE - 1) * 2; i >= 0; --i) {
-        if(arrayRes[i] != 0)
-            printf("%dx%c%d ", arrayRes[i], P_CHAR, i);
-    }
+    printf("The result of polynom multiplication:  \n");
+    printArrayInt(arrayRes);
     printf("\n");
 }
 
-/*
- *
- */
-void inputArrays(){
-    for(int i = 0; i < SIZE; ++i){
-        printf("Type coefficient for extent %d\nFor end of input, type '%s'\n ", i, END);
-        char inputNumber[SIZE] = {};
-        scanf("%s", inputNumber);
-        printf("%s\n", inputNumber);
-        printf("%d\n", (int)inputNumber[i]);
-        if(inputNumber[0] == 'e' && inputNumber[1] == 'n' && inputNumber[2] == 'd'){
+float* arrayDiv(int* arrayF, int extent, int coefficient){
+    int maxPower = 0;
+    float* res = initArrayFloat();
+    for (int i = SIZE-1; i > 0; i--){
+        if (i < extent)
             break;
-        }
-        else{
-            int resInputNumber = 0;
-            int multiplier = 1;
-            for(int j = SIZE - 1; j >= 0; --j){
-                if((int)inputNumber[j] == 0){
-                    continue;
-                } else {
-                    resInputNumber += ((int)inputNumber[j] - ZERO_CHAR) * multiplier;
-                    multiplier *= 10;
-                }
-            }
-            arrayFirst[i] =  resInputNumber;
+        if(arrayF[i] != 0){
+            res[i - extent] = (float)arrayF[i] / (float)coefficient;
         }
     }
-
-    for(int i = 0; i < SIZE; ++i){
-        printf("Type coefficient for extent %d\nFor end of input, type '%s'\n ", i, END);
-        char inputNumber[SIZE] = {};
-        scanf("%s", inputNumber);
-        printf("%s\n", inputNumber);
-        printf("%d\n", (int)inputNumber[i]);
-        if(inputNumber[0] == 'e' && inputNumber[1] == 'n' && inputNumber[2] == 'd'){
-            break;
-        }
-        else{
-            int resInputNumber = 0;
-            int multiplier = 1;
-            for(int j = SIZE - 1; j >= 0; --j){
-                if((int)inputNumber[j] == 0){
-                    continue;
-                } else {
-                    resInputNumber += ((int)inputNumber[j] - ZERO_CHAR) * multiplier;
-                    multiplier *= 10;
-                }
-            }
-            arraySecond[i] =  resInputNumber;
-        }
-    }
-}
-
-/*
- *
- */
-void printArrayFirst(){
-    for (int i = SIZE - 1; i >= 0; --i) {
-        if(arrayFirst[i] != 0)
-            printf("%dx%c%d ", arrayFirst[i], P_CHAR, i);
-    }
-    printf("\n");
-}
-
-/*
- *
- */
-void printArraySecond(){
-    for (int i = SIZE - 1; i >= 0; --i) {
-        if(arraySecond[i] != 0)
-            printf("%dx%c%d ", arraySecond[i], P_CHAR, i);
-    }
-    printf("\n");
+    return res;
 }
