@@ -59,6 +59,7 @@ void printArrayInt(int *array){
         if(array[i] != 0)
             printf("%s%dx%c%d ", (array[i] > 0 && flag++ != 0) ? "+" : "", array[i], P_CHAR, i);
     }
+    printf("\n");
 }
 
 void printArrayFloat(float *array){
@@ -68,6 +69,7 @@ void printArrayFloat(float *array){
         if((array[i] > 0.000001) || (array[i] < -0.000001))
             printf("%s%.2fx%c%d ", (array[i] > 0 && flag++ != 0) ? "+" : "", array[i], P_CHAR, i);
     }
+    printf("\n");
 }
 
 void inputArrays(){
@@ -99,7 +101,6 @@ int* arrayAdd(int* arrayF, int* arrayS){
     }
     printf("The result of polynom addition:  \n");
     printArrayInt(arrayRes);
-    printf("\n");
 }
 
 int* arraySub(int* arrayF, int* arrayS){
@@ -109,7 +110,6 @@ int* arraySub(int* arrayF, int* arrayS){
     }
     printf("The result of polynom subtraction:  \n");
     printArrayInt(arrayRes);
-    printf("\n");
 }
 
 int* arrayMul(int* arrayF, int* arrayS){
@@ -121,7 +121,6 @@ int* arrayMul(int* arrayF, int* arrayS){
     }
     printf("The result of polynom multiplication:  \n");
     printArrayInt(arrayRes);
-    printf("\n");
 }
 
 float* arrayDiv(int* arrayF, int extent, int coefficient){
