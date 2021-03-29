@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 #define SIZE 4
 
 int count = 0;
@@ -14,7 +15,7 @@ void rotate(int* array, int size, int n) {
 }
 
 void display(int* array, int size) {
-    if ((float)(array[0] + array[1])/2.0 > ((float)(array[2] * array[3])/2.0))
+    if ((float)(array[0] + array[1])/2.0 > ((float)sqrt((array[2] * array[3]))))
     {
       printf("%d%d%d%d", array[0], array[1], array[2], array[3]);
       count++;
@@ -40,6 +41,6 @@ int main(){
 
     int array[SIZE] = {number1, number2, number3, number4};
 
-    getCombination(array, 4, 4); // 1234
+    getCombination(array, SIZE, SIZE); // 1234
     printf("Count is: %d\n", count);
 }
