@@ -33,6 +33,7 @@ int main() {
     scanf("%d", &extent);
     float *res = arrayDiv(arrayFirst, extent, coefficient);
     printArrayFloat(res);
+    free(res);
     return 0;
 }
 
