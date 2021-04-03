@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
+#include <math.h>
 
 #define END 404
 #define P_CHAR 94
@@ -22,6 +23,7 @@ int* arraySub(int* arrayF, int* arrayS, int maxExtent);
 int* arrayMul(int* arrayF, int* arrayS, int maxExtent);
 float* arrayDiv(int* arrayF, int extent, int coefficient, int maxExtent);
 int* arrayDiff(int* arrayF, int maxExtent);
+int differentiationRes(int* arrayF, int maxExtent);
 
 
 int main() {
@@ -93,8 +95,8 @@ int main() {
             arrayFirst = initArrayInt(maxExtent);
             inputArray(maxExtent);
             int* diffResult = arrayDiff(arrayFirst, maxExtent);
-            printf("Результат дифференцирования полинома в точке x0:  \n");
-            printArrayInt(diffResult, maxExtent);
+            int res = differentiationRes(diffResult, maxExtent);
+            printf("Результат дифференцирования полинома в точке x0: %d\n", res);
             free(arrayFirst);
             free(diffResult);
             break;
@@ -228,4 +230,15 @@ int* arrayDiff(int* arrayF, int maxExtent){
         arrayRes[i - 1] = arrayF[i] * i;
     }
     return arrayRes;
+}
+
+int differentiationRes(int* arrayF, int maxExtent){
+    int result = 0;
+    int x;
+    printf("Введите точку: \n");
+    scanf("%d", &x);
+    for(int i = 0; i < maxExtent; ++i){
+        result += arrayF[i] * pow(x, i);
+    }
+    return result;
 }
