@@ -12,6 +12,7 @@ int arrayMaxExtentChoice();
 int* initArrayInt(int maxExtent);
 float* initArrayFloat(int maxExtent);
 void inputArrays(int maxExtent);
+void inputArray(int maxExtent);
 void printArrayInt(int *array, int maxExtent);
 void printArrayFloat(float *array, int maxExtent);
 
@@ -20,6 +21,7 @@ int* arrayAdd(int* arrayF, int* arrayS, int maxExtent);
 int* arraySub(int* arrayF, int* arrayS, int maxExtent);
 int* arrayMul(int* arrayF, int* arrayS, int maxExtent);
 float* arrayDiv(int* arrayF, int extent, int coefficient, int maxExtent);
+int* arrayDiff(int* arrayF, int maxExtent);
 
 
 int main() {
@@ -86,10 +88,19 @@ int main() {
             free(arraySecond);
             free(divResult);
             break;
-        //} else if (userChoice == 5){
-            
-        //} else if (userChoice == 6){
-            
+        } else if (userChoice == 5){
+            int maxExtent = arrayMaxExtentChoice();
+            arrayFirst = initArrayInt(maxExtent);
+            inputArray(maxExtent);
+            int* diffResult = arrayDiff(arrayFirst, maxExtent);
+            printf("Результат дифференцирования полинома в точке x0:  \n");
+            printArrayInt(diffResult, maxExtent);
+            free(arrayFirst);
+            free(diffResult);
+            break;
+        } else if (userChoice == 6){
+            printf("nothing");
+            break;
         } else {
             printf("Выберите одно из доступных действий \n");
             fflush(stdout);
@@ -140,6 +151,18 @@ void inputArrays(int maxExtent){
             break;
         else
             arraySecond[i] =  inputNumber;
+    }
+}
+
+void inputArray(int maxExtent){
+    for(int i = 0; i < maxExtent; ++i){
+        printf("Type coefficient for extent %d\nFor end of input, type %d\n ", i, END);
+        int inputNumber;
+        scanf("%d", &inputNumber);
+        if(inputNumber == END)
+            break;
+        else
+            arrayFirst[i] =  inputNumber;
     }
 }
 
@@ -197,4 +220,12 @@ float* arrayDiv(int* arrayF, int extent, int coefficient, int maxExtent){
         }
     }
     return res;
+}
+
+int* arrayDiff(int* arrayF, int maxExtent){
+    int* arrayRes = initArrayInt(maxExtent);
+    for(int i = 1; i < maxExtent; ++i){
+        arrayRes[i - 1] = arrayF[i] * i;
+    }
+    return arrayRes;
 }
