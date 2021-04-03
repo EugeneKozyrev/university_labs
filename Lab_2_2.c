@@ -136,7 +136,7 @@ float* initArrayFloat(int maxExtent){
 
 void inputArrays(int maxExtent){
     for(int i = 0; i < maxExtent; ++i){
-        printf("Type coefficient for extent %d\nFor end of input, type %d\n ", i, END);
+        printf("Введите коэффицент для степени %d\nДля окончания ввода введите %d\n ", i, END);
         int inputNumber;
         scanf("%d", &inputNumber);
         if(inputNumber == END)
@@ -146,7 +146,7 @@ void inputArrays(int maxExtent){
     }
 
     for(int i = 0; i < maxExtent; ++i){
-        printf("Type coefficient for extent %d\nFor end of input, type %d\n ", i, END);
+        printf("Введите коэффицент для степени %d\nДля окончания ввода введите %d\n ", i, END);
         int inputNumber;
         scanf("%d", &inputNumber);
         if(inputNumber == END)
@@ -158,7 +158,7 @@ void inputArrays(int maxExtent){
 
 void inputArray(int maxExtent){
     for(int i = 0; i < maxExtent; ++i){
-        printf("Type coefficient for extent %d\nFor end of input, type %d\n ", i, END);
+        printf("Введите коэффицент для степени %d\nДля окончания ввода введите %d\n ", i, END);
         int inputNumber;
         scanf("%d", &inputNumber);
         if(inputNumber == END)
