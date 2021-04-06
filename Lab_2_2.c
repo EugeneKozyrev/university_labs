@@ -24,6 +24,7 @@ int* arrayMul(int* arrayF, int* arrayS, int maxExtent);
 float* arrayDiv(int* arrayF, int extent, int coefficient, int maxExtent);
 int* arrayDiff(int* arrayF, int maxExtent);
 int differentiationRes(int* arrayF, int maxExtent);
+float certainIntegral(int* arrayF, float* arrayRes, int maxExtent, int lowerLimit, int upperLimit);
 
 
 int main() {
@@ -101,7 +102,19 @@ int main() {
             free(diffResult);
             break;
         } else if (userChoice == 6){
-            printf("nothing");
+            int upperLimit, lowerLimit;
+            printf("Введите верхний предел: \n");
+            scanf("%d", &upperLimit);
+            printf("Введите нижний предел: \n");
+            scanf("%d", &lowerLimit);
+            int maxExtent = arrayMaxExtentChoice();
+            arrayFirst = initArrayInt(maxExtent);
+            inputArray(maxExtent);
+            float* temp;
+            float result = certainIntegral(arrayFirst, temp, maxExtent, lowerLimit, upperLimit);
+            printf("Результат: %.2f \n", result);
+            free(arrayFirst);
+            free(temp);
             break;
         } else {
             printf("Выберите одно из доступных действий \n");
@@ -240,5 +253,20 @@ int differentiationRes(int* arrayF, int maxExtent){
     for(int i = 0; i < maxExtent; ++i){
         result += arrayF[i] * pow(x, i);
     }
+    return result;
+}
+
+float certainIntegral(int* arrayF, float* arrayRes, int maxExtent, int lowerLim, int upperLim){
+    arrayRes = (float*)initArrayFloat(maxExtent);
+    for(int i = 0; i < maxExtent; ++i){
+        arrayRes[i + 1] = (float)arrayF[i] / (float)(i + 1);
+    }
+    float sumUpperLim = 0;
+    float sumLowerLim = 0;
+    for(int i = 0; i < maxExtent; ++i){
+        sumUpperLim += (float)pow(upperLim, i) * arrayRes[i];
+        sumLowerLim += (float)pow(lowerLim, i) * arrayRes[i];
+    }
+    float result = sumUpperLim - sumLowerLim;
     return result;
 }
