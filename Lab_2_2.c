@@ -29,6 +29,7 @@ float certainIntegral(int* arrayF, float* arrayRes, int maxExtent, int lowerLimi
 
 int main() {
     setlocale(LC_ALL, "Russian");
+    while(1){
     int userChoice;
     printf("Введите желаемое действие над полиномами: \n");
     printf("1: Сложение полиномов \n");
@@ -38,7 +39,6 @@ int main() {
     printf("5: Нахождение производной \n");
     printf("6: Нахождение интеграла \n");
     scanf("%d", &userChoice);
-    while(1){
         if(userChoice == 1){
             int maxExtent = arrayMaxExtentChoice();
             arrayFirst = initArrayInt(maxExtent);
