@@ -78,7 +78,7 @@ int main() {
         } else if (userChoice == 4){
             int maxExtent = arrayMaxExtentChoice();
             arrayFirst = initArrayInt(maxExtent);
-            inputArrays(maxExtent);
+            inputArray(maxExtent);
             int coefficient, extent;
             printf("Введите коэфициент монома: \n");
             scanf("%d", &coefficient);
