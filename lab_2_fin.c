@@ -5,6 +5,8 @@
 
 #define END 404
 #define P_CHAR 94
+#define RANGE 2147483646
+#define TRY 100
 
 int* arrayFirst;
 int* arraySecond;
@@ -22,25 +24,22 @@ int* arrayAdd(int* arrayF, int* arrayS, int maxExtent);
 int* arraySub(int* arrayF, int* arrayS, int maxExtent);
 int* arrayMul(int* arrayF, int* arrayS, int maxExtent);
 float* arrayDiv(int* arrayF, int extent, int coefficient, int maxExtent);
-int* arrayDiff(int* arrayF, int maxExtent);
-int differentiationRes(int* arrayF, int maxExtent);
 float certainIntegral(int* arrayF, float* arrayRes, int maxExtent, int lowerLimit, int upperLimit);
 
 
 int main() {
     SetConsoleOutputCP(CP_UTF8);
     int idx = 0;
-    while(idx++ < 100) {
-        int userChoice = 0;
+    while(idx++ < TRY) {
+        int userChoice = RANGE;
         printf("Введите желаемое действие над полиномами: \n");
         printf("1: Сложение полиномов \n");
         printf("2: Вычитание полиномов \n");
         printf("3: Умножение полиномов \n");
         printf("4: Деление полинома на моном \n");
-        printf("5: Нахождение производной \n");
-        printf("6: Нахождение интеграла \n");
+        printf("5: Нахождение интеграла \n");
         scanf("%d", &userChoice);
-        if (userChoice == 0) break;
+        if (userChoice == RANGE) break;
         else if (userChoice == 1) {
             int maxExtent = arrayMaxExtentChoice();
             arrayFirst = initArrayInt(maxExtent);
@@ -94,21 +93,14 @@ int main() {
             free(divResult);
             break;
         } else if (userChoice == 5) {
-            int maxExtent = arrayMaxExtentChoice();
-            arrayFirst = initArrayInt(maxExtent);
-            inputArray(maxExtent);
-            int *diffResult = arrayDiff(arrayFirst, maxExtent);
-            int res = differentiationRes(diffResult, maxExtent);
-            printf("Результат дифференцирования полинома в точке x0: %d\n", res);
-            free(arrayFirst);
-            free(diffResult);
-            break;
-        } else if (userChoice == 6) {
-            int upperLimit, lowerLimit;
+            int lowerLimit = RANGE;
+            int upperLimit = RANGE;
             printf("Введите верхний предел: \n");
             scanf("%d", &upperLimit);
+            if (upperLimit == RANGE) break;
             printf("Введите нижний предел: \n");
             scanf("%d", &lowerLimit);
+            if (lowerLimit == RANGE) break;
             int maxExtent = arrayMaxExtentChoice();
             arrayFirst = initArrayInt(maxExtent);
             inputArray(maxExtent);
@@ -123,8 +115,8 @@ int main() {
             fflush(stdout);
         }
     }
-        return 0;
-    }
+    return 0;
+}
 
     int arrayMaxExtentChoice(){
         int userMaxExtent;
@@ -236,25 +228,6 @@ int main() {
             }
         }
         return res;
-    }
-
-    int* arrayDiff(int* arrayF, int maxExtent){
-        int* arrayRes = initArrayInt(maxExtent);
-        for(int i = 1; i < maxExtent; ++i){
-            arrayRes[i - 1] = arrayF[i] * i;
-        }
-        return arrayRes;
-    }
-
-    int differentiationRes(int* arrayF, int maxExtent){
-        int result = 0;
-        int x;
-        printf("Введите точку: \n");
-        scanf("%d", &x);
-        for(int i = 0; i < maxExtent; ++i){
-            result += arrayF[i] * pow(x, i);
-        }
-        return result;
     }
 
     float certainIntegral(int* arrayF, float* arrayRes, int maxExtent, int lowerLim, int upperLim){
