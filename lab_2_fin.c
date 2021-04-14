@@ -2,111 +2,137 @@
 #include <stdlib.h>
 #include <math.h>
 #include <windows.h>
+//#include <locale.h>
 
-#define END 404
-#define P_CHAR 94
 #define RANGE 2147483646
 #define TRY 100
+#define P_CHAR 94
 
-int* arrayFirst;
-int* arraySecond;
+double* arrayFirst;
+double* arraySecond;
 
-int arrayMaxExtentChoice();
-int* initArrayInt(int maxExtent);
-float* initArrayFloat(int maxExtent);
-void inputArrays(int maxExtent);
-void inputArray(int maxExtent);
-void printArrayInt(int *array, int maxExtent);
-void printArrayFloat(float *array, int maxExtent);
-
-
-int* arrayAdd(int* arrayF, int* arrayS, int maxExtent);
-int* arraySub(int* arrayF, int* arrayS, int maxExtent);
-int* arrayMul(int* arrayF, int* arrayS, int maxExtent);
-float* arrayDiv(int* arrayF, int extent, int coefficient, int maxExtent);
-float certainIntegral(int* arrayF, float* arrayRes, int maxExtent, int lowerLimit, int upperLimit);
-
+int arrayMaxExtentChoice(char* name);
+double* initArray(int maxExtent);
+void inputArray(double* array, int maxExtent);
+void printArray(double *array, int maxExtent);
+double* arrayAdd(double* arrayLarger, double* arraySmaller, int maxExtentLarger, int maxExtentSmaller);
+double* arraySub(double* arrayLarger, double* arraySmaller, int maxExtentLarger, int maxExtentSmaller);
+double* arrayMul(double* arrayLarger, double* arraySmaller, int maxExtentLarger, int maxExtentSmaller);
+double* arrayDiv(double* array, int extent, double coefficient, int maxExtent);
+double* arrayDiff(double* array, int maxExtent);
+double differentiationRes(double* array, int maxExtent);
+double certainIntegral(double* array, double* arrayRes, int maxExtent, int lowerLim, int upperLim);
 
 int main() {
     SetConsoleOutputCP(CP_UTF8);
+    //setlocale(LC_ALL, "Russian");
     int idx = 0;
-    while(idx++ < TRY) {
+    while (idx++ < TRY) {
         int userChoice = RANGE;
         printf("Введите желаемое действие над полиномами: \n");
         printf("1: Сложение полиномов \n");
         printf("2: Вычитание полиномов \n");
         printf("3: Умножение полиномов \n");
         printf("4: Деление полинома на моном \n");
-        printf("5: Нахождение интеграла \n");
+        printf("5: Нахождение производной \n");
+        printf("6: Нахождение интеграла \n");
         scanf("%d", &userChoice);
         if (userChoice == RANGE) break;
         else if (userChoice == 1) {
-            int maxExtent = arrayMaxExtentChoice();
-            arrayFirst = initArrayInt(maxExtent);
-            arraySecond = initArrayInt(maxExtent);
-            inputArrays(maxExtent);
-            int *addResult = arrayAdd(arrayFirst, arraySecond, maxExtent);
+            int maxExtent1 = arrayMaxExtentChoice("Первого");
+            int maxExtent2 = arrayMaxExtentChoice("Второго");
+            arrayFirst = initArray(maxExtent1);
+            arraySecond = initArray(maxExtent2);
+            inputArray(arrayFirst, maxExtent1);
+            inputArray(arraySecond, maxExtent2);
+            double *addResult;
+            int maxExtentToFunc;
+            if (maxExtent1 > maxExtent2) {
+                maxExtentToFunc = maxExtent1;
+                addResult = arrayAdd(arrayFirst, arraySecond, maxExtent1, maxExtent2);
+            } else {
+                maxExtentToFunc = maxExtent2;
+                addResult = arrayAdd(arraySecond, arrayFirst, maxExtent2, maxExtent1);
+            }
             printf("Результат сложения полинома и полинома:  \n");
-            printArrayInt(addResult, maxExtent);
+            printArray(addResult, maxExtentToFunc);
             free(arrayFirst);
             free(arraySecond);
             free(addResult);
             break;
         } else if (userChoice == 2) {
-            int maxExtent = arrayMaxExtentChoice();
-            arrayFirst = initArrayInt(maxExtent);
-            arraySecond = initArrayInt(maxExtent);
-            inputArrays(maxExtent);
-            int *subResult = arraySub(arrayFirst, arraySecond, maxExtent);
-            printf("Результат вычитания полинома из полинома:  \n");
-            printArrayInt(subResult, maxExtent);
+            int maxExtent1 = arrayMaxExtentChoice("Первого");
+            int maxExtent2 = arrayMaxExtentChoice("Второго");
+            arrayFirst = initArray(maxExtent1);
+            arraySecond = initArray(maxExtent2);
+            inputArray(arrayFirst, maxExtent1);
+            inputArray(arraySecond, maxExtent2);
+            double *addResult;
+            int maxExtentToFunc;
+            if (maxExtent1 > maxExtent2) {
+                maxExtentToFunc = maxExtent1;
+                addResult = arraySub(arrayFirst, arraySecond, maxExtent1, maxExtent2);
+            } else {
+                maxExtentToFunc = maxExtent2;
+                addResult = arraySub(arraySecond, arrayFirst, maxExtent2, maxExtent1);
+            }
+            printf("Результат сложения полинома и полинома:  \n");
+            printArray(addResult, maxExtentToFunc);
             free(arrayFirst);
             free(arraySecond);
-            free(subResult);
+            free(addResult);
             break;
         } else if (userChoice == 3) {
-            int maxExtent = arrayMaxExtentChoice();
-            arrayFirst = initArrayInt(maxExtent);
-            arraySecond = initArrayInt(maxExtent);
-            inputArrays(maxExtent);
-            int *mulResult = arrayMul(arrayFirst, arraySecond, maxExtent);
-            printf("Результат умножения полинома на полином:  \n");
-            printArrayInt(mulResult, maxExtent);
+            int maxExtent1 = arrayMaxExtentChoice("Первого");
+            int maxExtent2 = arrayMaxExtentChoice("Второго");
+            arrayFirst = initArray(maxExtent1);
+            arraySecond = initArray(maxExtent2);
+            inputArray(arrayFirst, maxExtent1);
+            inputArray(arraySecond, maxExtent2);
+            double *addResult;
+            int maxExtentToFunc;
+            if (maxExtent1 > maxExtent2) {
+                maxExtentToFunc = maxExtent1;
+                addResult = arrayMul(arrayFirst, arraySecond, maxExtent1, maxExtent2);
+            } else {
+                maxExtentToFunc = maxExtent2;
+                addResult = arrayMul(arraySecond, arrayFirst, maxExtent2, maxExtent1);
+            }
+            printf("Результат сложения полинома и полинома:  \n");
+            printArray(addResult, maxExtent1 + maxExtent2);
             free(arrayFirst);
             free(arraySecond);
-            free(mulResult);
+            free(addResult);
             break;
         } else if (userChoice == 4) {
-            int maxExtent = arrayMaxExtentChoice();
-            arrayFirst = initArrayInt(maxExtent);
-            inputArray(maxExtent);
-            int coefficient, extent;
+            int maxExtent1 = arrayMaxExtentChoice("");
+            arrayFirst = initArray(maxExtent1);
+            inputArray(arrayFirst, maxExtent1);
+            int extent;
+            double coefficient;
             printf("Введите коэфициент монома: \n");
-            scanf("%d", &coefficient);
+            scanf("%lf", &coefficient);
             printf("Введите степень монома: \n");
             scanf("%d", &extent);
-            float *divResult = arrayDiv(arrayFirst, extent, coefficient, maxExtent);
-            printf("Результат деления полинома на моном:  \n");
-            printArrayFloat(divResult, maxExtent);
+            double *addResult = arrayDiv(arrayFirst, extent, coefficient, maxExtent1);
+            printf("Результат сложения полинома и полинома:  \n");
+            printArray(addResult, maxExtent1);
             free(arrayFirst);
             free(arraySecond);
-            free(divResult);
+            free(addResult);
             break;
         } else if (userChoice == 5) {
-            int lowerLimit = RANGE;
-            int upperLimit = RANGE;
+            int upperLimit, lowerLimit;
             printf("Введите верхний предел: \n");
             scanf("%d", &upperLimit);
-            if (upperLimit == RANGE) break;
             printf("Введите нижний предел: \n");
             scanf("%d", &lowerLimit);
-            if (lowerLimit == RANGE) break;
-            int maxExtent = arrayMaxExtentChoice();
-            arrayFirst = initArrayInt(maxExtent);
-            inputArray(maxExtent);
-            float *temp;
-            float result = certainIntegral(arrayFirst, temp, maxExtent, lowerLimit, upperLimit);
-            printf("Результат: %.2f \n", result);
+            int maxExtent = arrayMaxExtentChoice("");
+            arrayFirst = initArray(maxExtent);
+            inputArray(arrayFirst, maxExtent);
+            double *temp;
+            double result = certainIntegral(arrayFirst, temp, maxExtent, lowerLimit, upperLimit);
+            printf("Результат: %lf\n", result);
             free(arrayFirst);
             free(temp);
             break;
@@ -118,129 +144,118 @@ int main() {
     return 0;
 }
 
-    int arrayMaxExtentChoice(){
-        int userMaxExtent;
-        printf("Введите максимальную степень полиномов: \n");
-        scanf("%d", &userMaxExtent);
-        return ++userMaxExtent;
-    }
+int arrayMaxExtentChoice(char* name){
+    int userMaxExtent;
+    printf("Введите максимальную степень %s полиномов: \n", name);
+    scanf("%d", &userMaxExtent);
+    return ++userMaxExtent;
+}
 
-    int* initArrayInt(int maxExtent){
-        int* arrayRes = (int*) malloc(sizeof(int) * maxExtent);
-        for (int i = 0; i < maxExtent; i++){
-            arrayRes[i] = 0;
-        }
-        return arrayRes;
+double* initArray(int maxExtent){
+    double* arrayRes = (double*) malloc(sizeof(double) * maxExtent);
+    for (int i = 0; i < maxExtent; i++){
+        arrayRes[i] = 0;
     }
+    return arrayRes;
+}
 
-    float* initArrayFloat(int maxExtent){
-        float* arrayRes = (float*) malloc(sizeof(float) * maxExtent);
-        for (int i = 0; i < maxExtent; i++){
-            arrayRes[i] = 0;
-        }
-        return arrayRes;
+void inputArray(double* array, int maxExtent){
+    for(int i = 0; i < maxExtent; ++i){
+        printf("Введите коэффицент для степени %d\n ", i);
+        double inputNumber;
+        scanf("%lf", &inputNumber);
+        array[i] =  inputNumber;
     }
-    void inputArrays(int maxExtent){
-        for(int i = 0; i < maxExtent; ++i){
-            printf("Введите коэффицент для степени %d\nДля окончания ввода введите %d\n ", i, END);
-            int inputNumber;
-            scanf("%d", &inputNumber);
-            if(inputNumber == END)
-                break;
-            else
-                arrayFirst[i] =  inputNumber;
-        }
+}
 
-        for(int i = 0; i < maxExtent; ++i){
-            printf("Введите коэффицент для степени %d\nДля окончания ввода введите %d\n ", i, END);
-            int inputNumber;
-            scanf("%d", &inputNumber);
-            if(inputNumber == END)
-                break;
-            else
-                arraySecond[i] =  inputNumber;
-        }
+void printArray(double *array, int maxExtent){
+    int flag = 0;
+    for (int i = maxExtent - 1; i >= 0; --i) {
+        if(array[i] != 0)
+            printf("%s%.2lfx%c%d ", (array[i] > 0 && flag++ != 0) ? "+" : "", array[i], P_CHAR, i);
     }
+    printf("\n");
+}
 
-    void inputArray(int maxExtent){
-        for(int i = 0; i < maxExtent; ++i){
-            printf("Введите коэффицент для степени %d\nДля окончания ввода введите %d\n ", i, END);
-            int inputNumber;
-            scanf("%d", &inputNumber);
-            if(inputNumber == END)
-                break;
-            else
-                arrayFirst[i] =  inputNumber;
-        }
+double* arrayAdd(double* arrayLarger, double* arraySmaller, int maxExtentLarger, int maxExtentSmaller){
+    double* arrayRes = initArray(maxExtentLarger);
+    for (int i = 0; i < maxExtentLarger; ++i) {
+        arrayRes[i] = arrayLarger[i];
     }
+    for (int i = 0; i < maxExtentSmaller; ++i) {
+        arrayRes[i] += arraySmaller[i];
+    }
+    return arrayRes;
+}
 
-    void printArrayInt(int *array, int maxExtent){
-        int flag = 0;
-        for (int i = maxExtent - 1; i >= 0; --i) {
-            if(array[i] != 0)
-                printf("%s%dx%c%d ", (array[i] > 0 && flag++ != 0) ? "+" : "", array[i], P_CHAR, i);
-        }
-        printf("\n");
-    }
 
-    void printArrayFloat(float *array, int maxExtent){
-        int flag = 0;
-        for (int i = maxExtent - 1; i >= 0; --i) {
-            if((array[i] > 0.000001) || (array[i] < -0.000001))
-                printf("%s%.2fx%c%d ", (array[i] > 0 && flag++ != 0) ? "+" : "", array[i], P_CHAR, i);
-        }
-        printf("\n");
+double* arraySub(double* arrayLarger, double* arraySmaller, int maxExtentLarger, int maxExtentSmaller){
+    double* arrayRes = initArray(maxExtentLarger);
+    for (int i = 0; i < maxExtentLarger; ++i) {
+        arrayRes[i] = arrayLarger[i];
     }
+    for (int i = 0; i < maxExtentSmaller; ++i) {
+        arrayRes[i] -= arraySmaller[i];
+    }
+    return arrayRes;
+}
 
-    int* arrayAdd(int* arrayF, int* arrayS, int maxExtent){
-        int* arrayRes = initArrayInt(maxExtent);
-        for (int i = 0; i < maxExtent; ++i) {
-            arrayRes[i] = arrayF[i] + arrayS[i];
+double* arrayMul(double* arrayLarger, double* arraySmaller, int maxExtentLarger, int maxExtentSmaller){
+    double* arrayRes = initArray(maxExtentLarger + maxExtentSmaller);
+    for (int i = 0; i < maxExtentLarger; ++i) {
+        for(int j = 0; j < maxExtentSmaller; ++j){
+            arrayRes[i + j] += arrayLarger[i] * arraySmaller[j];
         }
-        return arrayRes;
     }
+    return arrayRes;
+}
 
-    int* arraySub(int* arrayF, int* arrayS, int maxExtent){
-        int* arrayRes = initArrayInt(maxExtent);
-        for (int i = 0; i < maxExtent; ++i) {
-            arrayRes[i] = arrayF[i] - arrayS[i];
-        }
-        return arrayRes;
+double* arrayDiv(double* array, int extent, double coefficient, int maxExtent){
+    double* res = initArray(maxExtent - extent);
+    for (int i = extent; i < maxExtent; ++i) {
+        if (array[i] != 0)
+            res[i - extent] = array[i] / coefficient;
     }
+    printf("\nРезультат деления: ");
+    for (int i = 0; i < maxExtent - extent; i++) {
+        printf("%.2lfx^%d ", res[i], i);
+    }
+    printf("\nОстаток: ");
+    for (int i = 0; i < extent; i++) {
+        printf("%.2lfx^%d ", array[i], i);
+    }
+    return res;
+}
 
-    int* arrayMul(int* arrayF, int* arrayS, int maxExtent){
-        int* arrayRes = initArrayInt(maxExtent * 2);
-        for (int i = 0; i < maxExtent; ++i) {
-            for(int j = 0; j < maxExtent; ++j){
-                arrayRes[i + j] += arrayF[i] * arrayS[j];
-            }
-        }
-        return arrayRes;
+double* arrayDiff(double* array, int maxExtent){
+    double* arrayRes = initArray(maxExtent);
+    for(int i = 1; i < maxExtent; ++i){
+        arrayRes[i - 1] = array[i] * i;
     }
+    return arrayRes;
+}
 
-    float* arrayDiv(int* arrayF, int extent, int coefficient, int maxExtent){
-        float* res = initArrayFloat(maxExtent);
-        for (int i = maxExtent - 1; i > 0; i--){
-            if (i < extent)
-                break;
-            if(arrayF[i] != 0){
-                res[i - extent] = (float)arrayF[i] / (float)coefficient;
-            }
-        }
-        return res;
+double differentiationRes(double* array, int maxExtent){
+    double result = 0;
+    int x;
+    printf("Введите точку: \n");
+    scanf("%d", &x);
+    for(int i = 0; i < maxExtent; ++i){
+        result += array[i] * pow(x, i);
     }
+    return result;
+}
 
-    float certainIntegral(int* arrayF, float* arrayRes, int maxExtent, int lowerLim, int upperLim){
-        arrayRes = (float*)initArrayFloat(maxExtent);
-        for(int i = 0; i < maxExtent; ++i){
-            arrayRes[i + 1] = (float)arrayF[i] / (float)(i + 1);
-        }
-        float sumUpperLim = 0;
-        float sumLowerLim = 0;
-        for(int i = 0; i < maxExtent; ++i){
-            sumUpperLim += (float)pow(upperLim, i) * arrayRes[i];
-            sumLowerLim += (float)pow(lowerLim, i) * arrayRes[i];
-        }
-        float result = sumUpperLim - sumLowerLim;
-        return result;
+double certainIntegral(double* array, double* arrayRes, int maxExtent, int lowerLim, int upperLim){
+    arrayRes = (double*)initArray(maxExtent);
+    for(int i = 0; i < maxExtent; ++i){
+        arrayRes[i + 1] = (double)array[i] / (double)(i + 1);
     }
+    double sumUpperLim = 0;
+    double sumLowerLim = 0;
+    for(int i = 0; i < maxExtent + 1; ++i){
+        sumUpperLim += (double)pow(upperLim, i) * arrayRes[i];
+        sumLowerLim += (double)pow(lowerLim, i) * arrayRes[i];
+    }
+    return sumUpperLim - sumLowerLim;
+}

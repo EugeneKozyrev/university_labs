@@ -142,7 +142,7 @@ int main() {
             inputArray(arrayFirst, maxExtent);
             double *temp;
             double result = certainIntegral(arrayFirst, temp, maxExtent, lowerLimit, upperLimit);
-            printf("Результат: %.lf \n", result);
+            printf("Результат: %lf\n", result);
             free(arrayFirst);
             free(temp);
             break;
@@ -263,10 +263,9 @@ double certainIntegral(double* array, double* arrayRes, int maxExtent, int lower
     }
     double sumUpperLim = 0;
     double sumLowerLim = 0;
-    for(int i = 0; i < maxExtent; ++i){
+    for(int i = 0; i < maxExtent + 1; ++i){
         sumUpperLim += (double)pow(upperLim, i) * arrayRes[i];
         sumLowerLim += (double)pow(lowerLim, i) * arrayRes[i];
     }
-    double result = sumUpperLim - sumLowerLim;
-    return result;
+    return sumUpperLim - sumLowerLim;
 }
