@@ -39,8 +39,8 @@ int main() {
         scanf("%d", &userChoice);
         if (userChoice == RANGE) break;
         else if (userChoice == 1) {
-            int maxExtent1 = arrayMaxExtentChoice("Первого");
-            int maxExtent2 = arrayMaxExtentChoice("Второго");
+            int maxExtent1 = arrayMaxExtentChoice("первого");
+            int maxExtent2 = arrayMaxExtentChoice("второго");
             arrayFirst = initArray(maxExtent1);
             arraySecond = initArray(maxExtent2);
             inputArray(arrayFirst, maxExtent1);
@@ -54,15 +54,15 @@ int main() {
                 maxExtentToFunc = maxExtent2;
                 addResult = arrayAdd(arraySecond, arrayFirst, maxExtent2, maxExtent1);
             }
-            printf("Результат сложения полинома и полинома:  \n");
+            printf("Результат сложения полиномов:  \n");
             printArray(addResult, maxExtentToFunc);
             free(arrayFirst);
             free(arraySecond);
             free(addResult);
             break;
         } else if (userChoice == 2) {
-            int maxExtent1 = arrayMaxExtentChoice("Первого");
-            int maxExtent2 = arrayMaxExtentChoice("Второго");
+            int maxExtent1 = arrayMaxExtentChoice("первого");
+            int maxExtent2 = arrayMaxExtentChoice("второго");
             arrayFirst = initArray(maxExtent1);
             arraySecond = initArray(maxExtent2);
             inputArray(arrayFirst, maxExtent1);
@@ -76,15 +76,15 @@ int main() {
                 maxExtentToFunc = maxExtent2;
                 addResult = arraySub(arraySecond, arrayFirst, maxExtent2, maxExtent1);
             }
-            printf("Результат сложения полинома и полинома:  \n");
+            printf("Результат вычитания полиномов:  \n");
             printArray(addResult, maxExtentToFunc);
             free(arrayFirst);
             free(arraySecond);
             free(addResult);
             break;
         } else if (userChoice == 3) {
-            int maxExtent1 = arrayMaxExtentChoice("Первого");
-            int maxExtent2 = arrayMaxExtentChoice("Второго");
+            int maxExtent1 = arrayMaxExtentChoice("первого");
+            int maxExtent2 = arrayMaxExtentChoice("второго");
             arrayFirst = initArray(maxExtent1);
             arraySecond = initArray(maxExtent2);
             inputArray(arrayFirst, maxExtent1);
@@ -98,7 +98,7 @@ int main() {
                 maxExtentToFunc = maxExtent2;
                 addResult = arrayMul(arraySecond, arrayFirst, maxExtent2, maxExtent1);
             }
-            printf("Результат сложения полинома и полинома:  \n");
+            printf("Результат умножения полиномов:  \n");
             printArray(addResult, maxExtent1 + maxExtent2);
             free(arrayFirst);
             free(arraySecond);
@@ -115,8 +115,6 @@ int main() {
             printf("Введите степень монома: \n");
             scanf("%d", &extent);
             double *addResult = arrayDiv(arrayFirst, extent, coefficient, maxExtent1);
-            printf("Результат сложения полинома и полинома:  \n");
-            printArray(addResult, maxExtent1);
             free(arrayFirst);
             free(arraySecond);
             free(addResult);
@@ -227,13 +225,9 @@ double* arrayDiv(double* array, int extent, double coefficient, int maxExtent){
             res[i - extent] = array[i] / coefficient;
     }
     printf("\nРезультат деления: ");
-    for (int i = 0; i < maxExtent - extent; i++) {
-        printf("%.2lfx^%d ", res[i], i);
-    }
+    printArray(res, maxExtent - extent);
     printf("\nОстаток: ");
-    for (int i = 0; i < extent; i++) {
-        printf("%.2lfx^%d ", array[i], i);
-    }
+    printArray(array, extent);
     return res;
 }
 
