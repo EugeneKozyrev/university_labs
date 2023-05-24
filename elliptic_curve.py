@@ -100,42 +100,41 @@ def elgamal_encryption(plain_text, curve, public_key):
 # ElGamal decryption
 def elgamal_decryption(c1, c2, curve, private_key):
     shared_secret = c1 * private_key
-    inverse_shared_secret = ECPoint.infinity - shared_secret  # Compute additive inverse of shared secret
-    decrypted_point = c2 + inverse_shared_secret
-    decrypted_text = curve.decode_text(str(decrypted_point.y))  # Convert y-coordinate to string
+    decrypted_text_len = int(c2 - shared_secret)
+    scaling_factor = 1000  # Scaling factor for decoding
+    decrypted_text = decode_text(str(decrypted_text_len)[:len(str(decrypted_text_len)) - 3])
     return decrypted_text
 
-# Encoding and decoding text
+# Text encoding and decoding
 def encode_text(text):
-    return [ord(c) for c in text]
+    return "".join(str(ord(c)).zfill(3) for c in text)
 
 def decode_text(encoded_text):
     scaling_factor = 1000  # Scaling factor for decoding
     decoded_text = "".join(chr(int(encoded_text[i:i+3]) // scaling_factor) for i in range(0, len(encoded_text), 3))
     return decoded_text
 
-# Example usage
-plain_text = "Hello, World!"  # Text to encrypt
+# Main code
+if __name__ == "__main__":
+    # Elliptic curve parameters
+    a = 2
+    b = 2
+    p = 751
+    base_point = ECPoint(182, 493, None)
+    curve = ECCurve(a, b, p, base_point)
 
-# Elliptic Curve parameters
-a = 2
-b = 2
-p = 751  # A prime number
-base_point = ECPoint(0, 1, None)
-curve = ECCurve(a, b, p, base_point)
-curve.encode_text = encode_text  # Add encoding function to curve object
-curve.decode_text = decode_text  # Add decoding function to curve object
+    # Generate ElGamal keys
+    private_key, public_key = elgamal_key_generation(curve)
+    print("Private Key:", private_key)
+    print("Public Key:", public_key)
 
-# Key generation
-private_key, public_key = elgamal_key_generation(curve)
+    # Encrypt a message
+    plain_text = "Hello, World!"
+    print("Plaintext:", plain_text)
+    c1, c2 = elgamal_encryption(plain_text, curve, public_key)
+    print("Ciphertext (c1):", c1)
+    print("Ciphertext (c2):", c2)
 
-# Encryption
-c1, c2 = elgamal_encryption(plain_text, curve, public_key)
-
-# Decryption
-decrypted_text = elgamal_decryption(c1, c2, curve, private_key)
-
-print(f"Plaintext: {plain_text}")
-print(f"Ciphertext (c1): {c1}")
-print(f"Ciphertext (c2): {c2}")
-print(f"Decrypted text: {decrypted_text}")
+    # Decrypt the message
+    decrypted_text = elgamal_decryption(c1, c2, curve, private_key)
+    print("Decrypted text:", decrypted_text)
