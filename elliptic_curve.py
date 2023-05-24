@@ -6,6 +6,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.padding import PKCS7
 from os import urandom
 
+
 def generate_key_pair():
     # Generate an elliptic curve key pair
     private_key = ec.generate_private_key(
@@ -35,9 +36,10 @@ def encrypt_message(message, public_key_bytes):
     )
 
     # Generate a random shared secret
-    shared_secret = ec.generate_private_key(
+    private_key = ec.generate_private_key(
         ec.SECP256K1(), default_backend()
-    ).exchange(ec.ECDH(), public_key)
+    )
+    shared_secret = private_key.exchange(ec.ECDH(), public_key)
 
     # Derive a symmetric encryption key
     salt = b'salt'  # Change this to a random value for each encryption
@@ -77,8 +79,9 @@ def decrypt_message(ciphertext, private_key_bytes, salt, iv):
         backend=default_backend()
     )
 
-    # Derive the shared secret using the private key
-    shared_secret = private_key.exchange(ec.ECDH())
+    # Derive the shared secret using the private key and peer's public key
+    public_key = private_key.public_key()
+    shared_secret = private_key.exchange(ec.ECDH(), public_key)
 
     # Derive the symmetric encryption key using the shared secret
     kdf = PBKDF2HMAC(
