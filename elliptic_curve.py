@@ -21,7 +21,10 @@ class ECPoint:
         else:
             p = self.curve.p
             if self.x == other.x and self.y == other.y:
-                l = (3 * self.x**2 + self.curve.a) * mod_inverse(2 * self.y, p) % p
+                if self.y == 0:
+                    return ECPoint.infinity
+                else:
+                    l = (3 * self.x**2 + self.curve.a) * mod_inverse(2 * self.y, p) % p
             else:
                 l = (self.y - other.y) * mod_inverse(self.x - other.x, p) % p
             x3 = (l**2 - self.x - other.x) % p
@@ -95,8 +98,8 @@ def elgamal_encryption(plain_text, curve, public_key):
 # ElGamal decryption
 def elgamal_decryption(c1, c2, curve, private_key):
     shared_secret = c1 * private_key
-    decrypted_text_len = len(c2 - shared_secret)
-    decrypted_text = c2.curve.decode_text(c2.curve.encoded_text[:decrypted_text_len])
+    decrypted_text_len = int(c2 - shared_secret)
+    decrypted_text = curve.decode_text(c2.curve.x[:decrypted_text_len])  # Use x-coordinate instead of encoded_text
     return decrypted_text
 
 # Encoding and decoding text
