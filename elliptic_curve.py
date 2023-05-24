@@ -83,17 +83,25 @@ def elgamal_key_generation(curve):
 def elgamal_encryption(plain_text, curve, public_key):
     k = random.randint(1, curve.p - 1)
     c1 = curve.base_point * k
-    c2 = curve.base_point * plain_text + public_key * k
+    c2 = curve.base_point * len(plain_text) + public_key * k
     return c1, c2
 
 # ElGamal decryption
 def elgamal_decryption(c1, c2, curve, private_key):
     shared_secret = c1 * private_key
-    decrypted_text = c2 - shared_secret
+    decrypted_text_len = int(c2 - shared_secret)
+    decrypted_text = c2.curve.base_point.curve.decode_text(c2.curve.base_point.curve.encoded_text[:decrypted_text_len])
     return decrypted_text
 
+# Encoding and decoding text
+def encode_text(text):
+    return [ord(c) for c in text]
+
+def decode_text(encoded_text):
+    return ''.join(chr(c) for c in encoded_text)
+
 # Example usage
-plain_text = 42
+plain_text = "Hello, World!"  # Text to encrypt
 
 # Elliptic Curve parameters
 a = 2
@@ -101,6 +109,8 @@ b = 2
 p = 751  # A prime number
 base_point = ECPoint(0, 1, None)
 curve = ECCurve(a, b, p, base_point)
+curve.encode_text = encode_text  # Add encoding function to curve object
+curve.decode_text = decode_text  # Add decoding function to curve object
 
 # Key generation
 private_key, public_key = elgamal_key_generation(curve)
