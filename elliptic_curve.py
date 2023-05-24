@@ -1,85 +1,131 @@
-import os
-import hashlib
-from cryptography.hazmat.primitives.asymmetric import ec
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import padding
+import random
+
+
+class EllipticCurve:
+    def __init__(self, p, a, b, x, y):
+        self.p = p
+        self.a = a
+        self.b = b
+        self.x = x
+        self.y = y
+
+    def is_point_on_curve(self, x, y):
+        return (y ** 2) % self.p == (x ** 3 + self.a * x + self.b) % self.p
+
+    def point_addition(self, x1, y1, x2, y2):
+        if x1 is None and y1 is None:
+            return x2, y2
+        if x2 is None and y2 is None:
+            return x1, y1
+
+        if x1 == x2 and (y1 != y2 or y1 == 0):
+            return None, None
+
+        if x1 == x2:
+            m = (3 * x1 * x1 + self.a) * self.modular_inverse(2 * y1, self.p)
+        else:
+            m = (y1 - y2) * self.modular_inverse(x1 - x2, self.p)
+
+        x3 = (m ** 2 - x1 - x2) % self.p
+        y3 = (m * (x1 - x3) - y1) % self.p
+
+        return x3, y3
+
+    def point_scalar_multiplication(self, x, y, scalar):
+        scalar %= self.p
+        result_x = None
+        result_y = None
+
+        while scalar:
+            if scalar & 1:
+                result_x, result_y = self.point_addition(result_x, result_y, x, y)
+            x, y = self.point_addition(x, y, x, y)
+            scalar >>= 1
+
+        return result_x, result_y
+
+    def modular_inverse(self, a, m):
+        if a < 0:
+            a = a % m
+        original_m = m
+        x, y, u, v = 0, 1, 1, 0
+        while a:
+            q = m // a
+            m, a = a, m % a
+            x, u = u, x - q * u
+            y, v = v, y - q * v
+        if x < 0:
+            x += original_m
+        return x
 
 
 def elgamal_encrypt(message, recipient_public_key):
-    # Generate an ephemeral private key
-    ephemeral_private_key = ec.generate_private_key(ec.SECP256K1(), default_backend())
-    ephemeral_public_key = ephemeral_private_key.public_key()
+    p = recipient_public_key[0]
+    a = recipient_public_key[1]
+    b = recipient_public_key[2]
+    base_point = (recipient_public_key[3], recipient_public_key[4])
+    public_key = base_point
+    private_key = random.randint(1, p - 1)
 
-    # Derive the shared secret
-    shared_secret = ephemeral_private_key.exchange(ec.ECDH(), recipient_public_key)
+    # Compute the shared secret point
+    shared_secret_point = curve.point_scalar_multiplication(public_key[0], public_key[1], private_key)
 
-    # Use the shared secret as the encryption key
-    encryption_key = hashlib.sha256(shared_secret).digest()
+    # Derive the shared secret x-coordinate
+    shared_secret_x = shared_secret_point[0]
 
-    # Generate a random IV (Initialization Vector)
-    iv = os.urandom(16)
+    # Convert the shared secret x-coordinate to an integer
+    shared_secret_int = shared_secret_x
 
-    # Create a padder for PKCS7 padding
-    padder = padding.PKCS7(algorithms.AES.block_size).padder()
+    # Encrypt the message
+    encrypted_message = ''.join([chr(ord(char) + shared_secret_int) for char in message])
 
-    # Pad the message
-    padded_message = padder.update(message.encode('utf-8')) + padder.finalize()
-
-    # Encrypt the padded message
-    cipher = Cipher(algorithms.AES(encryption_key), modes.CBC(iv), default_backend())
-    encryptor = cipher.encryptor()
-    encrypted_message = encryptor.update(padded_message) + encryptor.finalize()
-
-    # Return the encrypted ciphertext, the ephemeral public key, and the IV
-    return encrypted_message, ephemeral_public_key, iv
+    return encrypted_message, private_key
 
 
-def elgamal_decrypt(ciphertext, ephemeral_public_key, iv, private_key):
-    # Derive the shared secret using the ephemeral public key and the private key
-    shared_secret = private_key.exchange(ec.ECDH(), ephemeral_public_key)
+def elgamal_decrypt(ciphertext, private_key):
+    # Compute the shared secret point
+    shared_secret_point = curve.point_scalar_multiplication(curve.x, curve.y, private_key)
 
-    # Use the shared secret as the decryption key
-    decryption_key = hashlib.sha256(shared_secret).digest()
+    # Derive the shared secret x-coordinate
+    shared_secret_x = shared_secret_point[0]
 
-    # Decrypt the ciphertext
-    cipher = Cipher(algorithms.AES(decryption_key), modes.CBC(iv), default_backend())
-    decryptor = cipher.decryptor()
-    padded_message = decryptor.update(ciphertext) + decryptor.finalize()
+    # Convert the shared secret x-coordinate to an integer
+    shared_secret_int = shared_secret_x
 
-    # Create an unpadder for PKCS7 padding
-    unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
+    # Decrypt the message
+    decrypted_message = ''.join([chr(ord(char) - shared_secret_int) for char in ciphertext])
 
-    # Unpad the decrypted message
-    unpadded_message = unpadder.update(padded_message) + unpadder.finalize()
-
-    # Return the decrypted message
-    return unpadded_message.decode('utf-8')
+    return decrypted_message
 
 
-# Generate a random private key
-private_key = ec.generate_private_key(ec.SECP256K1(), default_backend())
-public_key = private_key.public_key()
+# Define the elliptic curve parameters
+p = 109
+a = -3
+b = 63
+x = 608
+y = 526
+curve = EllipticCurve(p, a, b, x, y)
 
-# Convert the public key to bytes for sharing
-public_key_bytes = public_key.public_bytes(
-    encoding=serialization.Encoding.PEM,
-    format=serialization.PublicFormat.SubjectPublicKeyInfo
+# Generate the recipient's private key
+recipient_private_key = random.randint(1, p - 1)
+
+# Compute the recipient's public key
+recipient_public_key = (
+    p,
+    a,
+    b,
+    x,
+    y,
+    curve.point_scalar_multiplication(x, y, recipient_private_key),
 )
 
-# Encrypt the word "Puppy"
+# Encrypt the message
 message = "Puppy"
-encrypted_message, ephemeral_public_key, iv = elgamal_encrypt(message, public_key)
-
-# Convert the ephemeral public key to bytes for sharing
-ephemeral_public_key_bytes = ephemeral_public_key.public_bytes(
-    encoding=serialization.Encoding.PEM,
-    format=serialization.PublicFormat.SubjectPublicKeyInfo
-)
+encrypted_message, private_key = elgamal_encrypt(message, recipient_public_key)
 
 # Decrypt the ciphertext
-decrypted_message = elgamal_decrypt(encrypted_message, ephemeral_public_key, iv, private_key)
+decrypted_message = elgamal_decrypt(encrypted_message, private_key)
 
-print("Encrypted Message:", message)
+print("Original Message:", message)
+print("Encrypted Message:", encrypted_message)
 print("Decrypted Message:", decrypted_message)
