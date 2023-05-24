@@ -1,5 +1,4 @@
 import random
-from sympy import isprime, mod_inverse
 
 # Elliptic Curve Point
 class ECPoint:
@@ -24,9 +23,9 @@ class ECPoint:
                 if self.y == 0:
                     return ECPoint.infinity
                 else:
-                    l = (3 * self.x**2 + self.curve.a) * mod_inverse(2 * self.y, p) % p
+                    l = (3 * self.x**2 + self.curve.a) * pow(2 * self.y, p - 2, p) % p
             else:
-                l = (self.y - other.y) * mod_inverse(self.x - other.x, p) % p
+                l = (self.y - other.y) * pow(self.x - other.x, p - 2, p) % p
             x3 = (l**2 - self.x - other.x) % p
             y3 = (l * (self.x - x3) - self.y) % p
             return ECPoint(x3, y3, self.curve)
@@ -100,8 +99,7 @@ def elgamal_encryption(plain_text, curve, public_key):
 # ElGamal decryption
 def elgamal_decryption(c1, c2, curve, private_key):
     shared_secret = c1 * private_key
-    decrypted_text_len = int(c2 - shared_secret)
-    scaling_factor = 1000  # Scaling factor for decoding
+    decrypted_text_len = int((c2.y - shared_secret.y) % curve.p)
     decrypted_text = decode_text(str(decrypted_text_len)[:len(str(decrypted_text_len)) - 3])
     return decrypted_text
 
@@ -123,18 +121,20 @@ if __name__ == "__main__":
     base_point = ECPoint(182, 493, None)
     curve = ECCurve(a, b, p, base_point)
 
-    # Generate ElGamal keys
-    private_key, public_key = elgamal_key_generation(curve)
-    print("Private Key:", private_key)
-    print("Public Key:", public_key)
+    while True:
+        # Generate ElGamal keys
+        private_key, public_key = elgamal_key_generation(curve)
+        print("Private Key:", private_key)
+        print("Public Key:", public_key)
 
-    # Encrypt a message
-    plain_text = "Hello, World!"
-    print("Plaintext:", plain_text)
-    c1, c2 = elgamal_encryption(plain_text, curve, public_key)
-    print("Ciphertext (c1):", c1)
-    print("Ciphertext (c2):", c2)
+        # Encrypt a message
+        plain_text = input("Enter a message to encrypt: ")
+        print("Plaintext:", plain_text)
+        c1, c2 = elgamal_encryption(plain_text, curve, public_key)
+        print("Ciphertext (c1):", c1)
+        print("Ciphertext (c2):", c2)
 
-    # Decrypt the message
-    decrypted_text = elgamal_decryption(c1, c2, curve, private_key)
-    print("Decrypted text:", decrypted_text)
+        # Decrypt the message
+        decrypted_text = elgamal_decryption(c1, c2, curve, private_key)
+        print("Decrypted text:", decrypted_text)
+        print()
