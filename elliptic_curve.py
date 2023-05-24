@@ -100,17 +100,8 @@ def elgamal_encryption(plain_text, curve, public_key):
 def elgamal_decryption(c1, c2, curve, private_key):
     shared_secret = c1 * private_key
     decrypted_text_len = int((c2.y - shared_secret.y) % curve.p)
-    decrypted_text = decode_text(str(decrypted_text_len)[:len(str(decrypted_text_len)) - 3])
+    decrypted_text = "".join(chr(int(str(decrypted_text_len)[i:i+3])) for i in range(0, len(str(decrypted_text_len)), 3))
     return decrypted_text
-
-# Text encoding and decoding
-def encode_text(text):
-    return "".join(str(ord(c)).zfill(3) for c in text)
-
-def decode_text(encoded_text):
-    scaling_factor = 1000  # Scaling factor for decoding
-    decoded_text = "".join(chr(int(encoded_text[i:i+3]) // scaling_factor) for i in range(0, len(encoded_text), 3))
-    return decoded_text
 
 # Main code
 if __name__ == "__main__":
