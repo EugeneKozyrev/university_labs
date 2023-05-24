@@ -1,120 +1,117 @@
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import ec
-from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.primitives.padding import PKCS7
-from os import urandom
+import random
+from sympy import isprime, mod_inverse
 
+# Elliptic Curve Point
+class ECPoint:
+    def __init__(self, x, y, curve):
+        self.x = x
+        self.y = y
+        self.curve = curve
 
-def generate_key_pair():
-    # Generate an elliptic curve key pair
-    private_key = ec.generate_private_key(
-        ec.SECP256K1(), default_backend()
-    )
-    public_key = private_key.public_key()
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
 
-    # Serialize the keys
-    private_key_bytes = private_key.private_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PrivateFormat.PKCS8,
-        encryption_algorithm=serialization.NoEncryption()
-    )
-    public_key_bytes = public_key.public_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PublicFormat.SubjectPublicKeyInfo
-    )
+    def __add__(self, other):
+        if self == ECPoint.infinity:
+            return other
+        elif other == ECPoint.infinity:
+            return self
+        elif self.x == other.x and self.y == -other.y:
+            return ECPoint.infinity
+        else:
+            p = self.curve.p
+            if self.x == other.x and self.y == other.y:
+                l = (3 * self.x**2 + self.curve.a) * mod_inverse(2 * self.y, p) % p
+            else:
+                l = (self.y - other.y) * mod_inverse(self.x - other.x, p) % p
+            x3 = (l**2 - self.x - other.x) % p
+            y3 = (l * (self.x - x3) - self.y) % p
+            return ECPoint(x3, y3, self.curve)
 
-    return private_key_bytes, public_key_bytes
+    def __mul__(self, scalar):
+        result = ECPoint.infinity
+        current = self
+        while scalar > 0:
+            if scalar & 1:
+                result += current
+            current += current
+            scalar >>= 1
+        return result
 
+    def __sub__(self, other):
+        other_inverse = ECPoint(other.x, -other.y, other.curve)
+        return self + other_inverse
 
-def encrypt_message(message, public_key_bytes):
-    # Deserialize the public key
-    public_key = serialization.load_pem_public_key(
-        public_key_bytes,
-        backend=default_backend()
-    )
+    def __str__(self):
+        return f"({self.x}, {self.y})"
 
-    # Generate a random shared secret
-    private_key = ec.generate_private_key(
-        ec.SECP256K1(), default_backend()
-    )
-    shared_secret = private_key.exchange(ec.ECDH(), public_key)
+ECPoint.infinity = ECPoint(None, None, None)  # Add infinity attribute to ECPoint class
 
-    # Derive a symmetric encryption key
-    salt = b'salt'  # Change this to a random value for each encryption
-    kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
-        length=32,
-        salt=salt,
-        iterations=100000,
-        backend=default_backend()
-    )
-    key = kdf.derive(shared_secret)
+# Elliptic Curve
+class ECCurve:
+    def __init__(self, a, b, p, base_point):
+        self.a = a
+        self.b = b
+        self.p = p
+        self.base_point = base_point
+        self.base_point.curve = self  # Set the curve attribute for the base point
 
-    # Generate a random initialization vector (IV)
-    iv = urandom(16)  # Change this to a random value for each encryption
+    def is_on_curve(self, point):
+        if point == ECPoint.infinity:
+            return True
+        x, y = point.x, point.y
+        return (y**2) % self.p == (x**3 + self.a * x + self.b) % self.p
 
-    # Pad the message with PKCS7
-    padder = PKCS7(algorithms.AES.block_size).padder()
-    padded_message = padder.update(message) + padder.finalize()
+    def generate_random_point(self):
+        while True:
+            x = random.randint(0, self.p)
+            y_squared = (x**3 + self.a * x + self.b) % self.p
+            y = pow(y_squared, (self.p + 1) // 4, self.p)
+            if (y**2) % self.p == y_squared:
+                return ECPoint(x, y, self)
 
-    # Encrypt the padded message using AES-CBC
-    cipher = Cipher(
-        algorithms.AES(key),
-        modes.CBC(iv),
-        backend=default_backend()
-    )
-    encryptor = cipher.encryptor()
-    ciphertext = encryptor.update(padded_message) + encryptor.finalize()
+    def __str__(self):
+        return f"y^2 = x^3 + {self.a}x + {self.b} mod {self.p}"
 
-    return ciphertext, salt, iv
+# ElGamal key generation
+def elgamal_key_generation(curve):
+    private_key = random.randint(1, curve.p - 1)
+    public_key = curve.base_point * private_key
+    return private_key, public_key
 
+# ElGamal encryption
+def elgamal_encryption(plain_text, curve, public_key):
+    k = random.randint(1, curve.p - 1)
+    c1 = curve.base_point * k
+    c2 = curve.base_point * plain_text + public_key * k
+    return c1, c2
 
-def decrypt_message(ciphertext, private_key_bytes, salt, iv):
-    # Deserialize the private key
-    private_key = serialization.load_pem_private_key(
-        private_key_bytes,
-        password=None,
-        backend=default_backend()
-    )
-
-    # Derive the shared secret using the private key and peer's public key
-    public_key = private_key.public_key()
-    shared_secret = private_key.exchange(ec.ECDH(), public_key)
-
-    # Derive the symmetric encryption key using the shared secret
-    kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
-        length=32,
-        salt=salt,
-        iterations=100000,
-        backend=default_backend()
-    )
-    key = kdf.derive(shared_secret)
-
-    # Decrypt the ciphertext using AES-CBC
-    cipher = Cipher(
-        algorithms.AES(key),
-        modes.CBC(iv),
-        backend=default_backend()
-    )
-    decryptor = cipher.decryptor()
-    decrypted_message = decryptor.update(ciphertext) + decryptor.finalize()
-
-    # Unpad the decrypted message
-    unpadder = PKCS7(algorithms.AES.block_size).unpadder()
-    unpadded_message = unpadder.update(decrypted_message) + unpadder.finalize()
-
-    return unpadded_message
-
+# ElGamal decryption
+def elgamal_decryption(c1, c2, curve, private_key):
+    shared_secret = c1 * private_key
+    decrypted_text = c2 - shared_secret
+    return decrypted_text
 
 # Example usage
-private_key, public_key = generate_key_pair()
+plain_text = 42
 
-message = b'This is a secret message.'
-ciphertext, salt, iv = encrypt_message(message, public_key)
-decrypted_message = decrypt_message(ciphertext, private_key, salt, iv)
+# Elliptic Curve parameters
+a = 2
+b = 2
+p = 751  # A prime number
+base_point = ECPoint(0, 1, None)
+curve = ECCurve(a, b, p, base_point)
 
-print('Original message:', message)
-print('Decrypted message:', decrypted_message)
+# Key generation
+private_key, public_key = elgamal_key_generation(curve)
+
+# Encryption
+c1, c2 = elgamal_encryption(plain_text, curve, public_key)
+
+# Decryption
+decrypted_text = elgamal_decryption(c1, c2, curve, private_key)
+
+print(f"Plaintext: {plain_text}")
+print(f"Ciphertext (c1): {c1}")
+print(f"Ciphertext (c2): {c2}")
+print(f"Decrypted text: {decrypted_text}")
