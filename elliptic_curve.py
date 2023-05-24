@@ -38,9 +38,15 @@ class ECPoint:
             scalar >>= 1
         return result
 
+    def __int__(self):
+        return self.x
+
     def __sub__(self, other):
         other_inverse = ECPoint(other.x, -other.y, other.curve)
         return self + other_inverse
+
+    def __len__(self):
+        return self.x
 
     def __str__(self):
         return f"({self.x}, {self.y})"
@@ -89,8 +95,8 @@ def elgamal_encryption(plain_text, curve, public_key):
 # ElGamal decryption
 def elgamal_decryption(c1, c2, curve, private_key):
     shared_secret = c1 * private_key
-    decrypted_text_len = int(c2 - shared_secret)
-    decrypted_text = c2.curve.base_point.curve.decode_text(c2.curve.base_point.curve.encoded_text[:decrypted_text_len])
+    decrypted_text_len = len(c2 - shared_secret)
+    decrypted_text = c2.curve.decode_text(c2.curve.encoded_text[:decrypted_text_len])
     return decrypted_text
 
 # Encoding and decoding text
