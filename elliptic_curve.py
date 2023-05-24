@@ -4,6 +4,8 @@ from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
+import os
+
 
 def generate_key_pair():
     # Generate an elliptic curve key pair
@@ -50,7 +52,7 @@ def encrypt_message(message, public_key_bytes):
     key = kdf.derive(shared_secret)
 
     # Generate a random initialization vector (IV)
-    iv = b'iv'  # Change this to a random value for each encryption
+    iv = os.urandom(16)
 
     # Encrypt the message using AES-CBC
     cipher = Cipher(
@@ -91,6 +93,7 @@ def decrypt_message(ciphertext, private_key_bytes, salt, iv):
         modes.CBC(iv),
         backend=default_backend()
     )
+    
     decryptor = cipher.decryptor()
     decrypted_message = decryptor.update(ciphertext) + decryptor.finalize()
 
