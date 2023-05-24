@@ -90,16 +90,19 @@ def elgamal_key_generation(curve):
 
 # ElGamal encryption
 def elgamal_encryption(plain_text, curve, public_key):
+    scaling_factor = 1000  # Scaling factor for encoding
+    encoded_text = "".join(str(ord(c) * scaling_factor).zfill(3) for c in plain_text)
     k = random.randint(1, curve.p - 1)
     c1 = curve.base_point * k
-    c2 = curve.base_point * len(plain_text) + public_key * k
+    c2 = curve.base_point * k + public_key * int(encoded_text)
     return c1, c2
 
 # ElGamal decryption
 def elgamal_decryption(c1, c2, curve, private_key):
     shared_secret = c1 * private_key
-    decrypted_text_len = int(c2 - shared_secret)
-    decrypted_text = curve.decode_text(str(c2.x))[:decrypted_text_len]  # Convert x-coordinate to string and then slice it
+    inverse_shared_secret = ECPoint.infinity - shared_secret  # Compute additive inverse of shared secret
+    decrypted_point = c2 + inverse_shared_secret
+    decrypted_text = curve.decode_text(str(decrypted_point.y))  # Convert y-coordinate to string
     return decrypted_text
 
 # Encoding and decoding text
@@ -107,7 +110,9 @@ def encode_text(text):
     return [ord(c) for c in text]
 
 def decode_text(encoded_text):
-    return ''.join(chr(int(c)) for c in encoded_text)  # Convert each character to an integer before joining
+    scaling_factor = 1000  # Scaling factor for decoding
+    decoded_text = "".join(chr(int(encoded_text[i:i+3]) // scaling_factor) for i in range(0, len(encoded_text), 3))
+    return decoded_text
 
 # Example usage
 plain_text = "Hello, World!"  # Text to encrypt
