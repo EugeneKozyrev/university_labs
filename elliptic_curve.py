@@ -3,9 +3,8 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-
-import os
-
+from cryptography.hazmat.primitives.padding import PKCS7
+from os import urandom
 
 def generate_key_pair():
     # Generate an elliptic curve key pair
@@ -52,16 +51,20 @@ def encrypt_message(message, public_key_bytes):
     key = kdf.derive(shared_secret)
 
     # Generate a random initialization vector (IV)
-    iv = os.urandom(16)
+    iv = urandom(16)  # Change this to a random value for each encryption
 
-    # Encrypt the message using AES-CBC
+    # Pad the message with PKCS7
+    padder = PKCS7(algorithms.AES.block_size).padder()
+    padded_message = padder.update(message) + padder.finalize()
+
+    # Encrypt the padded message using AES-CBC
     cipher = Cipher(
         algorithms.AES(key),
         modes.CBC(iv),
         backend=default_backend()
     )
     encryptor = cipher.encryptor()
-    ciphertext = encryptor.update(message) + encryptor.finalize()
+    ciphertext = encryptor.update(padded_message) + encryptor.finalize()
 
     return ciphertext, salt, iv
 
@@ -93,11 +96,14 @@ def decrypt_message(ciphertext, private_key_bytes, salt, iv):
         modes.CBC(iv),
         backend=default_backend()
     )
-    
     decryptor = cipher.decryptor()
     decrypted_message = decryptor.update(ciphertext) + decryptor.finalize()
 
-    return decrypted_message
+    # Unpad the decrypted message
+    unpadder = PKCS7(algorithms.AES.block_size).unpadder()
+    unpadded_message = unpadder.update(decrypted_message) + unpadder.finalize()
+
+    return unpadded_message
 
 
 # Example usage
