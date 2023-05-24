@@ -69,7 +69,8 @@ public_key_bytes = public_key.public_bytes(
 )
 
 # Encrypt the word "Puppy"
-encrypted_message, ephemeral_public_key, iv = elgamal_encrypt("supersecretstring", public_key)
+message = "Puppy"
+encrypted_message, ephemeral_public_key, iv = elgamal_encrypt(message, public_key)
 
 # Convert the ephemeral public key to bytes for sharing
 ephemeral_public_key_bytes = ephemeral_public_key.public_bytes(
@@ -80,5 +81,5 @@ ephemeral_public_key_bytes = ephemeral_public_key.public_bytes(
 # Decrypt the ciphertext
 decrypted_message = elgamal_decrypt(encrypted_message, ephemeral_public_key, iv, private_key)
 
-print("Encrypted Message:", encrypted_message)
+print("Encrypted Message:", message)
 print("Decrypted Message:", decrypted_message)
