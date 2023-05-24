@@ -99,7 +99,7 @@ def elgamal_encryption(plain_text, curve, public_key):
 def elgamal_decryption(c1, c2, curve, private_key):
     shared_secret = c1 * private_key
     decrypted_text_len = int(c2 - shared_secret)
-    decrypted_text = curve.decode_text(c2.curve.x[:decrypted_text_len])  # Use x-coordinate instead of encoded_text
+    decrypted_text = curve.decode_text(str(c2.x)[:decrypted_text_len])  # Convert x-coordinate to string before slicing
     return decrypted_text
 
 # Encoding and decoding text
@@ -107,7 +107,7 @@ def encode_text(text):
     return [ord(c) for c in text]
 
 def decode_text(encoded_text):
-    return ''.join(chr(c) for c in encoded_text)
+    return ''.join(chr(int(c)) for c in encoded_text)  # Convert each character to an integer before joining
 
 # Example usage
 plain_text = "Hello, World!"  # Text to encrypt
