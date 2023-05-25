@@ -1,4 +1,5 @@
 import random
+import re
 
 
 class EllipticCurve:
@@ -71,7 +72,7 @@ def elgamal_encrypt(message, recipient_public_key):
     shared_secret_point = curve.point_scalar_multiplication(public_key[0], public_key[1], private_key)
 
     # Derive the shared secret x-coordinate
-    shared_secret_x = shared_secret_point[0]
+    shared_secret_x = shared_secret_point[0] % p
 
     # Convert the shared secret x-coordinate to an integer
     shared_secret_int = shared_secret_x
@@ -79,7 +80,9 @@ def elgamal_encrypt(message, recipient_public_key):
     # Encrypt the message
     byte_message = message.encode('utf-8')
     encrypted_bytes = bytes((byte + shared_secret_int) % 256 for byte in byte_message)
-    encrypted_message = encrypted_bytes.decode('utf-8')
+
+    # Handle problematic bytes by encoding as hexadecimal strings
+    encrypted_message = ''.join([f'\\x{byte:02x}' if byte < 32 or byte >= 127 else chr(byte) for byte in encrypted_bytes])
 
     return encrypted_message, private_key
 
@@ -89,15 +92,16 @@ def elgamal_decrypt(ciphertext, private_key):
     shared_secret_point = curve.point_scalar_multiplication(curve.x, curve.y, private_key)
 
     # Derive the shared secret x-coordinate
-    shared_secret_x = shared_secret_point[0]
+    shared_secret_x = shared_secret_point[0] % p
 
     # Convert the shared secret x-coordinate to an integer
     shared_secret_int = shared_secret_x
 
     # Decrypt the message
-    byte_ciphertext = ciphertext.encode('utf-8')
+    hex_bytes = re.findall(r'\\x([0-9a-f]{2})', ciphertext)
+    byte_ciphertext = bytes(int(byte, 16) for byte in hex_bytes)
     decrypted_bytes = bytes((byte - shared_secret_int) % 256 for byte in byte_ciphertext)
-    decrypted_message = decrypted_bytes.decode('utf-8')
+    decrypted_message = decrypted_bytes.decode('utf-8', errors='ignore')
 
     return decrypted_message
 
@@ -125,7 +129,7 @@ recipient_public_key = (
 )
 
 # Encrypt the message
-message = "Puppy"
+message = "supersecretstring"
 encrypted_message, private_key = elgamal_encrypt(message, recipient_public_key)
 
 # Decrypt the ciphertext
