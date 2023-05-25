@@ -77,7 +77,9 @@ def elgamal_encrypt(message, recipient_public_key):
     shared_secret_int = shared_secret_x
 
     # Encrypt the message
-    encrypted_message = ''.join([chr(ord(char) + shared_secret_int) for char in message])
+    byte_message = message.encode('utf-8')
+    encrypted_bytes = bytes((byte + shared_secret_int) % 256 for byte in byte_message)
+    encrypted_message = encrypted_bytes.decode('utf-8')
 
     return encrypted_message, private_key
 
@@ -93,36 +95,14 @@ def elgamal_decrypt(ciphertext, private_key):
     shared_secret_int = shared_secret_x
 
     # Decrypt the message
-    decrypted_message = ''.join([chr(ord(char) - shared_secret_int) for char in ciphertext])
+    byte_ciphertext = ciphertext.encode('utf-8')
+    decrypted_bytes = bytes((byte - shared_secret_int) % 256 for byte in byte_ciphertext)
+    decrypted_message = decrypted_bytes.decode('utf-8')
 
     return decrypted_message
 
 
 # Define the elliptic curve parameters
-# p = 1009
-# a = -3
-# b = 63
-# x = 608
-# y = 526
-
-# p = 3061
-# a = -3
-# b = 35
-# x = 1658
-# y = 208
-
-# p = 31991
-# a = -3
-# b = 130
-# x = 25936
-# y = 10088
-
-# p = 426389
-# a = -3
-# b = 35
-# x = 248468
-# y = 339187
-
 p = 2455155546008943817740293915197451784769108058161191238065
 a = -3
 b = 2455155546008943817740293915197451784769108058161191238065
